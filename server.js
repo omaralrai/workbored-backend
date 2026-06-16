@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import pgclient from "./db.js";
 import userRoutes from "./routes/users.js";
 import jobRoutes from "./routes/jobs.js";
+import companyRoutes from "./routes/companies.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(morgan("dev"));
 // --- Routes ---
 app.use("/api/users", userRoutes);
 app.use("/api/jobs", jobRoutes);
+app.use("/api/companies", companyRoutes);
 
 // --- 404 handler (catches any unmatched route) ---
 app.use((req, res) => {
