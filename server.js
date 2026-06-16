@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
 import pgclient from "./db.js";
 import userRoutes from "./routes/users.js";
@@ -12,6 +14,8 @@ import applicationRoutes from "./routes/applications.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,6 +28,9 @@ app.use(express.json());
 
 // Best Practice: morgan logs every request (method, route, status, response time)
 app.use(morgan("dev"));
+
+// Serve uploaded resumes as static files
+app.use("/uploads", express.static(join(__dirname, "uploads")));
 
 // --- Routes ---
 app.use("/api/users", userRoutes);

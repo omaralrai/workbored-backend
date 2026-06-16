@@ -1,5 +1,22 @@
 import express from "express";
+import multer from "multer";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import { mkdirSync } from "fs";
 import pgclient from "../db.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const uploadDir = join(__dirname, "../uploads");
+mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadDir),
+  filename: (_req, file, cb) => {
+    const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_");
+    cb(null, `${Date.now()}_${safe}`);
+  },
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 const seekerRoutes = express.Router();
 
@@ -99,6 +116,27 @@ seekerRoutes.delete("/:id/skills/:skillId", async (req, res) => {
   const { skillId } = req.params;
   await pgclient.query("DELETE FROM seeker_skills WHERE id = $1", [skillId]);
   res.json({ message: "Skill removed" });
+});
+
+// POST /api/seekers/:id/resume — upload or replace resume file
+seekerRoutes.post("/:id/resume", upload.single("resume"), async (req, res) => {
+  const { id } = req.params;
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+
+  const filename = req.file.originalname;
+  const filePath = `/uploads/${req.file.filename}`;
+  const fileSizeKb = Math.round(req.file.size / 1024);
+
+  // Replace any existing resume for this seeker
+  await pgclient.query("DELETE FROM seeker_resumes WHERE seeker_id = $1", [id]);
+
+  const result = await pgclient.query(
+    `INSERT INTO seeker_resumes (seeker_id, filename, file_path, file_size_kb)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [id, filename, filePath, fileSizeKb]
+  );
+
+  res.status(201).json(result.rows[0]);
 });
 
 export default seekerRoutes;
