@@ -9,6 +9,7 @@ import jobRoutes from "./routes/jobs.js";
 import companyRoutes from "./routes/companies.js";
 import seekerRoutes from "./routes/seekers.js";
 import applicationRoutes from "./routes/applications.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
 
@@ -35,6 +36,9 @@ app.use("/api/applications", applicationRoutes);
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
+
+// --- Centralized error handler (Best Practice: Separation of Concerns) ---
+app.use(errorHandler);
 
 // --- Connect to PostgreSQL then start the server ---
 pgclient.connect().then(() => {
