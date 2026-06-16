@@ -4,6 +4,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 
 import pgclient from "./db.js";
+import userRoutes from "./routes/users.js";
 
 dotenv.config();
 
@@ -18,6 +19,9 @@ app.use(express.json());
 
 // Best Practice: morgan logs every request (method, route, status, response time)
 app.use(morgan("dev"));
+
+// --- Routes ---
+app.use("/api/users", userRoutes);
 
 // --- 404 handler (catches any unmatched route) ---
 app.use((req, res) => {
