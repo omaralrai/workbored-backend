@@ -8,6 +8,7 @@ import userRoutes from "./routes/users.js";
 import jobRoutes from "./routes/jobs.js";
 import companyRoutes from "./routes/companies.js";
 import seekerRoutes from "./routes/seekers.js";
+import applicationRoutes from "./routes/applications.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/companies", companyRoutes);
 app.use("/api/seekers", seekerRoutes);
+app.use("/api/applications", applicationRoutes);
 
 // --- 404 handler (catches any unmatched route) ---
 app.use((req, res) => {
